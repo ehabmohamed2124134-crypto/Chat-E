@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1769e0">
+  <title>Chat E - محادثاتك</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #eef4ff;
+      color: #172b4d;
+    }
+    header {
+      background: #1769e0;
+      color: white;
+      padding: 22px 18px;
+      border-radius: 0 0 24px 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: white;
+      color: #1769e0;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      font-weight: bold;
+    }
+    h1 { margin: 0; font-size: 25px; }
+    header p { margin: 6px 0 0; color: #e5efff; }
+    main { max-width: 600px; margin: auto; padding: 18px; }
+    .search, input, textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d7e4fa;
+      border-radius: 13px;
+      font-size: 16px;
+      outline-color: #1769e0;
+      background: white;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 22px 2px 12px;
+    }
+    .section-title h2 { margin: 0; font-size: 19px; }
+    .muted { color: #71819c; font-size: 13px; }
+    .panel {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 5px 20px #193b6b0a;
+    }
+    .profile {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #dceaff;
+      color: #1769e0;
+      font-size: 21px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .profile-info { flex: 1; min-width: 0; }
+    .profile-info strong { display: block; margin-bottom: 5px; }
+    button {
+      border: none;
+      background: #1769e0;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:active { opacity: .8; }
+    .secondary {
+      background: #e8f1ff;
+      color: #1769e0;
+    }
+    .empty {
+      text-align: center;
+      padding: 25px 10px;
+      color: #71819c;
+    }
+    .empty .big { font-size: 40px; margin-bottom: 10px; }
+    .hidden { display: none !important; }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: #10244388;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      z-index: 5;
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      padding: 22px;
+      border-radius: 20px;
+      max-height: 90vh;
+      overflow: auto;
+    }
+    .modal-box h2 { margin-top: 0; }
+    .field { margin: 14px 0; }
+    .field label { display: block; margin-bottom: 7px; }
+    .actions { display: flex; gap: 9px; margin-top: 16px; }
+    .actions button { flex: 1; }
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .chat-head button { padding: 10px 13px; }
+    #messages {
+      height: 300px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px 0;
+    }
+    .bubble {
+      background: #e8f1ff;
+      padding: 11px 13px;
+      border-radius: 15px 15px 4px 15px;
+      max-width: 85%;
+      overflow-wrap: anywhere;
+      align-self: flex-start;
+    }
+    .bubble.mine {
+      background: #1769e0;
+      color: white;
+      align-self: flex-end;
+      border-radius: 15px 15px 15px 4px;
+    }
+    .composer { display: flex; gap: 8px; }
+    .composer input { min-width: 0; }
+    .notice {
+      font-size: 13px;
+      color: #71819c;
+      line-height: 1.7;
+      margin-top: 14px;
+    }
+    footer {
+      text-align: center;
+      padding: 22px;
+      color: #71819c;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">E</div>
+      <div>
+        <h1>Chat E</h1>
+        <p>خليك قريب من الناس اللي بتحب تكلمهم 💙</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="home">
+      <div class="section-title">
+        <h2>أهلاً بيك 👋</h2>
+        <button onclick="openNewChat()">+ محادثة</button>
+      </div>
+
+      <input id="search" class="search"
+        placeholder="ابحث عن محادثة..."
+        oninput="renderChats()">
+
+      <div class="section-title">
+        <h2>محادثاتي</h2>
+        <span class="muted" id="chatCount">0 محادثات</span>
+      </div>
+
+      <div class="panel" id="chatList"></div>
+
+      <p class="notice">
+        دي النسخة الأولية من Chat E. الرسائل في هذه النسخة
+        محفوظة على نفس الجهاز فقط، وليست محادثات مباشرة بين
+        مستخدمين مختلفين حتى نربط التطبيق بخدمة رسائل حقيقية.
+      </p>
+    </section>
+
+    <section id="chatScreen" class="hidden">
+      <div class="panel">
+        <div class="chat-head">
+          <button class="secondary" onclick="goHome()">رجوع</button>
+          <div class="avatar" id="chatAvatar">E</div>
+          <div>
+            <strong id="chatName">المحادثة</strong>
+            <div class="muted">محادثة خاصة</div>
+          </div>
+        </div>
+        <div id="messages"></div>
+        <form class="composer" onsubmit="sendMessage(event)">
+          <input id="messageInput" placeholder="اكتب رسالتك..."
+            autocomplete="off" required>
+          <button type="submit">إرسال</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>Chat E © 2026 · صُنع بحب 💙</footer>
+
+  <div id="newChatModal" class="modal hidden">
+    <div class="modal-box">
+      <h2>محادثة جديدة</h2>
+      <form onsubmit="createChat(event)">
+        <div class="field">
+          <label for="friendName">اسم الشخص</label>
+          <input id="friendName" maxlength="40"
+            placeholder="اكتب الاسم" required>
+        </div>
+        <div class="field">
+          <label for="friendInitial">حرف مميز (اختياري)</label>
+          <input id="friendInitial" maxlength="2"
+            placeholder="مثلاً أ">
+        </div>
+        <div class="actions">
+          <button type="submit">إنشاء</button>
+          <button type="button" class="secondary"
+            onclick="closeNewChat()">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "chatE_local_v1";
+    let chats = loadChats();
+    let activeChatId = null;
+
+    function loadChats() {
+      try {
+        const value = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(value) ? value : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveChats() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
+    }
+
+    function safeText(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+      })[char]);
+    }
+
+    function renderChats() {
+      const query = document.getElementById("search").value
+        .trim().toLowerCase();
+      const list = document.getElementById("chatList");
+      const filtered = chats.filter(chat =>
+        chat.name.toLowerCase().includes(query)
+      );
+      document.getElementById("chatCount").textContent =
+        chats.length + " محادثات";
+
+      if (!filtered.length) {
+        list.innerHTML = `
+          <div class="empty">
+            <div class="big">💬</div>
+            <strong>لسه مفيش محادثات</strong>
+            <p>اضغط على «+ محادثة» عشان تبدأ.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(chat => {
+        const last = chat.messages[chat.messages.length - 1];
+        return `
+          <div class="profile">
+            <div class="avatar">${safeText(chat.initial)}</div>
+            <div class="profile-info">
+              <strong>${safeText(chat.name)}</strong>
+              <span class="muted">${
+                last ? safeText(last.text) : "ابدأ أول رسالة"
+              }</span>
+            </div>
+            <button onclick="openChat('${chat.id}')">فتح</button>
+          </div>`;
+      }).join("");
+    }
+
+    function openNewChat() {
+      document.getElementById("newChatModal").classList.remove("hidden");
+      document.getElementById("friendName").focus();
+    }
+
+    function closeNewChat() {
+      document.getElementById("newChatModal").classList.add("hidden");
+    }
+
+    function createChat(event) {
+      event.preventDefault();
+      const name = document.getElementById("friendName").value.trim();
+      const initial = document.getElementById("friendInitial")
+        .value.trim() || name.charAt(0);
+
+      if (!name) return;
+
+      const chat = {
+        id: String(Date.now()) + Math.random().toString(16).slice(2),
+        name,
+        initial: initial.slice(0, 2),
+        messages: []
+      };
+
+      chats.unshift(chat);
+      saveChats();
+      event.target.reset();
+      closeNewChat();
+      renderChats();
+      openChat(chat.id);
+    }
+
+    function openChat(id) {
+      const chat = chats.find(item => item.id === id);
+      if (!chat) return;
+
+      activeChatId = id;
+      document.getElementById("home").classList.add("hidden");
+      document.getElementById("chatScreen").classList.remove("hidden");
+      document.getElementById("chatName").textContent = chat.name;
+      document.getElementById("chatAvatar").textContent = chat.initial;
+      renderMessages();
+    }
+
+    function renderMessages() {
+      const chat = chats.find(item => item.id === activeChatId);
+      if (!chat) return;
+
+      const box = document.getElementById("messages");
+      box.innerHTML = chat.messages.map(message => `
+        <div class="bubble ${message.mine ? "mine" : ""}">
+          ${safeText(message.text)}
+        </div>
+      `).join("");
+
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendMessage(event) {
+      event.preventDefault();
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim();
+      const chat = chats.find(item => item.id === activeChatId);
+
+      if (!chat || !text) return;
+
+      chat.messages.push({ text, mine: true });
+      saveChats();
+      input.value = "";
+      renderMessages();
+      renderChats();
+    }
+
+    function goHome() {
+      activeChatId = null;
+      document.getElementById("chatScreen").classList.add("hidden");
+      document.getElementById("home").classList.remove("hidden");
+      renderChats();
+    }
+
+    renderChats();
+  </script>
+</body>
+</html>
